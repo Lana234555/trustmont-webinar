@@ -577,6 +577,11 @@ body{overflow-x:clip}
 #register.anim.settled .reg-info .eyebrow,#register.anim.settled .cobrand,#register.anim.settled h2 .w > span,#register.anim.settled .reg-tk-wrap{animation:none!important;opacity:1!important;transform:none!important}
 /* v29 */ html,body{overflow-anchor:none}
 /* v30: phones — scroll-linked blocks only fade/dim, never scale or shift, so touch scrolling stays smooth */ .lite .why-pin.is-covered .why-stage,.lite .stick-prev{transform:none!important;will-change:auto} .lite .wf{will-change:opacity}
+
+/* v31: pinned screens lay out as header gap → eyebrow → frames (no overlap), frames shrink to fit short screens */
+.why-pin:not(.static) .why-stage{justify-content:flex-start;padding-top:calc(var(--hdr,84px) + clamp(14px,calc(var(--sv1,1vh)*4),48px));padding-bottom:clamp(14px,calc(var(--sv1,1vh)*4),48px)}
+.why-pin:not(.static) .why-eye{position:static;flex:none;margin:0 0 clamp(10px,calc(var(--sv1,1vh)*3),32px)}
+.why-pin:not(.static) .why-frames{flex:1 1 0;min-height:0;height:auto!important;max-height:600px;margin-block:auto}
 </style>
 </head>
 <body>
@@ -1196,7 +1201,27 @@ if(window.LITE)document.documentElement.classList.add("lite");
   var lastW=W,tm;
   addEventListener("resize",function(){clearTimeout(tm);tm=setTimeout(function(){if(Math.abs(innerWidth-lastW)>80){lastW=innerWidth;build();}else{H=innerHeight;all();}},250);});
 })();
+</script><script>
+/* v31: fit each pinned frame inside the space under the header, so nothing overlaps on short phone screens */
+(function(){
+  var hd=document.querySelector('header');
+  function fit(){
+    if(hd) document.documentElement.style.setProperty('--hdr',hd.offsetHeight+'px');
+    [].forEach.call(document.querySelectorAll('.why-pin:not(.static) .why-frames'),function(box){
+      [].forEach.call(box.querySelectorAll('.wf'),function(f){
+        var kids=[].slice.call(f.children); if(!kids.length) return;
+        kids.forEach(function(k){k.style.zoom='';});
+        var avail=box.clientHeight, span=kids[kids.length-1].getBoundingClientRect().bottom-kids[0].getBoundingClientRect().top;
+        if(span>avail&&avail>0){ var z=Math.max(.55,avail/span*.98); kids.forEach(function(k){k.style.zoom=z.toFixed(3);}); }
+      });
+    });
+  }
+  var lw=innerWidth; fit();
+  addEventListener('load',fit); if(document.fonts&&document.fonts.ready) document.fonts.ready.then(fit);
+  addEventListener('resize',function(){ if(innerWidth!==lw){ lw=innerWidth; fit(); } });
+})();
 </script>
+
 
 </body>
 </html>
