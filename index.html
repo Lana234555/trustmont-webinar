@@ -1043,7 +1043,7 @@ if(window.LITE)document.documentElement.classList.add("lite");
   [].forEach.call(s.querySelectorAll('.rv'),function(el){el.classList.remove('rv','pre');});
   var io=new IntersectionObserver(function(es){es.forEach(function(en){
     if(en.intersectionRatio>=.2){ s.classList.add('in'); }
-    else if(!en.isIntersecting && s.classList.contains('in')){
+    else if(!window.LITE && !en.isIntersecting && s.classList.contains('in')){
       s.classList.add('no-t'); s.classList.remove('in'); void s.offsetWidth; s.classList.remove('no-t');
     }
   });},{threshold:[0,.2]});
@@ -1060,7 +1060,7 @@ if(window.LITE)document.documentElement.classList.add("lite");
   /* plays every time the block scrolls into view; resets silently once it is fully off screen */
   var io=new IntersectionObserver(function(es){es.forEach(function(en){
     if(en.intersectionRatio>=.3){ s.classList.add('in'); }
-    else if(!en.isIntersecting && s.classList.contains('in')){
+    else if(!window.LITE && !en.isIntersecting && s.classList.contains('in')){
       s.classList.add('no-t'); s.classList.remove('in'); void s.offsetWidth; s.classList.remove('no-t');
     }
   });},{threshold:[0,.3]});
@@ -1099,7 +1099,7 @@ if(window.LITE)document.documentElement.classList.add("lite");
   [].forEach.call(s.querySelectorAll('.rv'),function(el){el.classList.remove('rv','pre');});
   var io=new IntersectionObserver(function(es){es.forEach(function(en){
     if(en.intersectionRatio>=.25){ s.classList.add('in'); }
-    else if(!en.isIntersecting && s.classList.contains('in')){ s.classList.remove('in'); void s.offsetWidth; }
+    else if(!window.LITE && !en.isIntersecting && s.classList.contains('in')){ s.classList.remove('in'); void s.offsetWidth; }
   });},{threshold:[0,.25]});
   io.observe(s);
   if(f&&matchMedia('(hover: hover) and (pointer: fine)').matches){
