@@ -572,6 +572,9 @@ body{overflow-x:clip}
   .hero2 h1{font-size:clamp(30px,10.4vw,40px)}
   .hero2-tag{font-size:10px;padding:8px 12px;letter-spacing:.04em}
 }
+
+/* v28: registration entrance is frozen after it has played once */
+#register.anim.settled .reg-info .eyebrow,#register.anim.settled .cobrand,#register.anim.settled h2 .w > span,#register.anim.settled .reg-tk-wrap{animation:none!important;opacity:1!important;transform:none!important}
 </style>
 </head>
 <body>
@@ -1109,8 +1112,12 @@ if(window.LITE)document.documentElement.classList.add("lite");
   s.classList.add('anim');
   [].forEach.call(s.querySelectorAll('.rv'),function(el){el.classList.remove('rv','pre');});
   var io=new IntersectionObserver(function(es){es.forEach(function(en){
-    if(en.intersectionRatio>=.25){ s.classList.add('in'); }
-    else if(!window.LITE && !en.isIntersecting && s.classList.contains('in')){ s.classList.remove('in'); void s.offsetWidth; }
+    if(en.intersectionRatio>=.25 && !s.classList.contains('in')){
+      s.classList.add('in');
+      /* once the entrance has finished, freeze it in its final state so nothing can replay it */
+      clearTimeout(s._st); s._st=setTimeout(function(){ if(s.classList.contains('in')) s.classList.add('settled'); },2600);
+    }
+    else if(!window.LITE && !en.isIntersecting && s.classList.contains('in')){ clearTimeout(s._st); s.classList.remove('in','settled'); void s.offsetWidth; }
   });},{threshold:[0,.25]});
   io.observe(s);
   if(f&&matchMedia('(hover: hover) and (pointer: fine)').matches){
