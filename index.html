@@ -576,6 +576,7 @@ body{overflow-x:clip}
 /* v28: registration entrance is frozen after it has played once */
 #register.anim.settled .reg-info .eyebrow,#register.anim.settled .cobrand,#register.anim.settled h2 .w > span,#register.anim.settled .reg-tk-wrap{animation:none!important;opacity:1!important;transform:none!important}
 /* v29 */ html,body{overflow-anchor:none}
+/* v30: phones — scroll-linked blocks only fade/dim, never scale or shift, so touch scrolling stays smooth */ .lite .why-pin.is-covered .why-stage,.lite .stick-prev{transform:none!important;will-change:auto} .lite .wf{will-change:opacity}
 </style>
 </head>
 <body>
@@ -963,7 +964,7 @@ if(window.LITE)document.documentElement.classList.add("lite");
       frames.forEach(function(f,i){
         var d=x-(i+.5), a=clamp(1-(Math.abs(d)-.22)/.28);
         if(i===0&&d<0) a=1; if(i===n-1&&d>0) a=1;
-        var off=(1-a)*40*(d<0?1:-1);
+        var off=LITE?0:(1-a)*40*(d<0?1:-1);
         f.style.opacity=a.toFixed(3);
         f.style.transform='translateY('+off.toFixed(1)+'px)';
         if(!LITE) f.style.filter=a<1?'blur('+((1-a)*6).toFixed(2)+'px)':'none';
