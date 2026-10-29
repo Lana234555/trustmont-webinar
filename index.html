@@ -575,6 +575,7 @@ body{overflow-x:clip}
 
 /* v28: registration entrance is frozen after it has played once */
 #register.anim.settled .reg-info .eyebrow,#register.anim.settled .cobrand,#register.anim.settled h2 .w > span,#register.anim.settled .reg-tk-wrap{animation:none!important;opacity:1!important;transform:none!important}
+/* v29 */ html,body{overflow-anchor:none}
 </style>
 </head>
 <body>
@@ -935,6 +936,18 @@ if(window.LITE)document.documentElement.classList.add("lite");
 })();
 </script>
 <script>
+/* v29: stable viewport height for scroll effects (100svh, re-measured only when the width changes),
+   so the phone address bar showing/hiding while scrolling never shifts pinned or sliding blocks */
+(function(){
+  var probe=document.createElement('div'),h=0,w=-1;
+  probe.style.cssText='position:fixed;left:0;top:0;width:0;height:100vh;height:100svh;visibility:hidden;pointer-events:none';
+  window.SVH=function(){
+    if(innerWidth!==w||!h){ if(!probe.parentNode)(document.body||document.documentElement).appendChild(probe); w=innerWidth; h=probe.offsetHeight||innerHeight; }
+    return h;
+  };
+})();
+</script>
+<script>
 /* pinned sections: scrub frames by scroll progress */
 (function(){
   var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -945,7 +958,7 @@ if(window.LITE)document.documentElement.classList.add("lite");
     function clamp(v){return v<0?0:v>1?1:v;}
     function render(){
       ticking=false;
-      var r=sec.getBoundingClientRect(), total=sec.offsetHeight-innerHeight*(sec.classList.contains('is-covered')?2:1);
+      var r=sec.getBoundingClientRect(), total=sec.offsetHeight-window.SVH()*(sec.classList.contains('is-covered')?2:1);
       var x=clamp(-r.top/Math.max(1,total))*n;
       frames.forEach(function(f,i){
         var d=x-(i+.5), a=clamp(1-(Math.abs(d)-.22)/.28);
@@ -1087,7 +1100,7 @@ if(window.LITE)document.documentElement.classList.add("lite");
   var w=document.getElementById('prog-wrap'),st=document.querySelector('#why .why-stage');
   if(!w||!st||matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   var ticking=false;
-  function f(){ticking=false;var top=w.getBoundingClientRect().top,H=innerHeight;var c=Math.max(0,Math.min(1,(H-top)/H));st.style.setProperty('--cv',c.toFixed(3));}
+  function f(){ticking=false;var top=w.getBoundingClientRect().top,H=window.SVH();var c=Math.max(0,Math.min(1,(H-top)/H));st.style.setProperty('--cv',c.toFixed(3));}
   addEventListener('scroll',function(){if(!ticking){ticking=true;requestAnimationFrame(f);}},{passive:true});
   addEventListener('resize',f); f();
 })();
@@ -1098,10 +1111,10 @@ if(window.LITE)document.documentElement.classList.add("lite");
   var sp=document.getElementById('speakers'),w=document.getElementById('aud-wrap');
   if(!sp||!w||matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   var ticking=false;
-  function size(){sp.style.setProperty('--stk',Math.min(0,innerHeight-sp.offsetHeight)+'px');}
-  function f(){ticking=false;var top=w.getBoundingClientRect().top,H=innerHeight;sp.style.setProperty('--cv',Math.max(0,Math.min(1,(H-top)/H)).toFixed(3));}
+  function size(){sp.style.setProperty('--stk',Math.min(0,window.SVH()-sp.offsetHeight)+'px');}
+  function f(){ticking=false;var top=w.getBoundingClientRect().top,H=window.SVH();sp.style.setProperty('--cv',Math.max(0,Math.min(1,(H-top)/H)).toFixed(3));}
   addEventListener('scroll',function(){if(!ticking){ticking=true;requestAnimationFrame(f);}},{passive:true});
-  addEventListener('resize',function(){size();f();}); size(); f();
+  var lw=innerWidth;addEventListener('resize',function(){if(innerWidth!==lw){lw=innerWidth;size();}f();}); size(); f(); addEventListener('load',size);
 })();
 </script>
 <script>
