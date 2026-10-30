@@ -596,6 +596,15 @@ body{overflow-x:clip}
 .why-pin:not(.static) .why-stage{justify-content:flex-start;padding-top:calc(var(--hdr,84px) + clamp(14px,calc(var(--sv1,1vh)*4),48px));padding-bottom:clamp(14px,calc(var(--sv1,1vh)*4),48px)}
 .why-pin:not(.static) .why-eye{position:static;flex:none;margin:0 0 clamp(10px,calc(var(--sv1,1vh)*3),32px)}
 .why-pin:not(.static) .why-frames{flex:1 1 0;min-height:0;height:auto!important;max-height:600px;margin-block:auto}
+
+/* v32: phones — both tickets sit straight (no tilt), entrance slides in without rotating */
+@media (max-width:767px){
+  .ticket,.ticket:hover,.reg-ticket,.reg-ticket:hover{transform:none!important}
+  .hero2 .tk-wrap{animation-name:tkInFlat}
+  #register.anim .reg-tk-wrap{transform:translateY(40px) scale(.96)}
+  #register.anim.in .reg-tk-wrap{animation-name:tkInFlat}
+}
+@keyframes tkInFlat{from{opacity:0;transform:translateY(40px) scale(.96)}to{opacity:1;transform:none}}
 </style>
 </head>
 <body>
@@ -670,7 +679,7 @@ body{overflow-x:clip}
   </section>
 
   <!-- 02 WHY IT MATTERS: pinned screen, three frames swap on scroll -->
-  <section class="why-pin is-covered" id="why" aria-labelledby="h-why">
+  <section class="why-pin" id="why" aria-labelledby="h-why">
     <div class="why-stage">
       <p class="eyebrow dash why-eye">Почему это важно</p>
       <div class="why-frames">
@@ -693,7 +702,7 @@ body{overflow-x:clip}
   </section>
 
   <!-- 03 PROGRAMME -->
-  <div class="panel-wrap overlap-in" id="prog-wrap">
+  <div class="panel-wrap" id="prog-wrap">
   <section class="sec panel" id="program" aria-labelledby="h-agenda">
     <div class="panel-glow" aria-hidden="true"></div>
     <div class="wrap agenda-grid">
@@ -723,7 +732,7 @@ body{overflow-x:clip}
 
   <div class="stack" id="stack-aud">
   <!-- 04 SPEAKERS -->
-  <section class="sec stick-prev" id="speakers" aria-labelledby="h-spk">
+  <section class="sec" id="speakers" aria-labelledby="h-spk">
     <div class="wrap">
       <div class="spk-head rv">
         <div style="display:grid;gap:20px;max-width:820px">
@@ -767,7 +776,7 @@ body{overflow-x:clip}
   </section>
 
   <!-- 05 AUDIENCE -->
-  <div class="panel-wrap overlap-in2" id="aud-wrap">
+  <div class="panel-wrap" id="aud-wrap">
   <section class="sec panel" id="audience" aria-labelledby="h-aud">
     <div class="panel-glow" aria-hidden="true"></div>
     <div class="wrap aud-grid">
@@ -1150,7 +1159,7 @@ if(window.LITE)document.documentElement.classList.add("lite");
 /* dim and shrink the pinned screen while the programme block slides over it */
 (function(){
   var w=document.getElementById('prog-wrap'),st=document.querySelector('#why .why-stage');
-  if(!w||!st||matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if(!w||!w.classList.contains('overlap-in')||!st||matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   var ticking=false;
   function f(){ticking=false;var top=w.getBoundingClientRect().top,H=window.SVH();var c=Math.max(0,Math.min(1,(H-top)/H));st.style.setProperty('--cv',c.toFixed(3));}
   addEventListener('scroll',function(){if(!ticking){ticking=true;requestAnimationFrame(f);}},{passive:true});
@@ -1161,7 +1170,7 @@ if(window.LITE)document.documentElement.classList.add("lite");
 /* speakers stay put (bottom-aligned) while the audience block slides over them */
 (function(){
   var sp=document.getElementById('speakers'),w=document.getElementById('aud-wrap');
-  if(!sp||!w||matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if(!sp||!sp.classList.contains('stick-prev')||!w||matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   var ticking=false;
   function size(){sp.style.setProperty('--stk',Math.min(0,window.SVH()-sp.offsetHeight)+'px');}
   function f(){ticking=false;var top=w.getBoundingClientRect().top,H=window.SVH();sp.style.setProperty('--cv',Math.max(0,Math.min(1,(H-top)/H)).toFixed(3));}
