@@ -49,17 +49,7 @@ function post_json($url, $data, $timeout = 10) {
 
 $res = [];
 
-/* 1. CRM (Uspacy lead processor) */
-$crm_url = $cfg['crm_url'] ?? 'https://rubicon.tips/uspacy/customers/pro_part_real_estate/leads_processor/leads_processor.php';
-$res['crm'] = post_json($crm_url, array_merge([
-  'title'      => '[Webinar] Отельная недвижимость без посредников: ' . $name,
-  'first_name' => $name,
-  'phone'      => $phone,
-  'email'      => $email,
-  'source'     => 'reklama_target',
-], $utm));
-
-/* 2. bord.ee chat-bot: makes the contact and answers with a personal link into the bot (chat_url) */
+/* 1. bord.ee chat-bot: makes the contact and answers with a personal link into the bot (chat_url) */
 $chat_url = '';
 $bordee_url = $cfg['bordee_url'] ?? 'https://bord.ee/hooks/trustmont-capital/sites/vebinar-wyndham-14112026-telegram-bot/lead';
 if ($bordee_url) {
@@ -69,6 +59,33 @@ if ($bordee_url) {
   $j = json_decode($res['bordee']['body'], true);
   if (is_array($j) && !empty($j['chat_url']) && preg_match('~^https://t\.me/[A-Za-z0-9_]+(\?start=[A-Za-z0-9_-]+)?$~', $j['chat_url'])) $chat_url = $j['chat_url'];
 }
+
+/* the visitor should land in the bot right away: once bord.ee has the lead, answer the page now
+   and let the CRM, Telegram and the Sheet finish in the background */
+$answered = false;
+$ok = function ($r) { return $r && $r['code'] >= 200 && $r['code'] < 300; };
+if (isset($res['bordee']) && $ok($res['bordee'])) {
+  ignore_user_abort(true);
+  $out = json_encode(['ok' => true, 'chat_url' => $chat_url]);
+  header('Content-Length: ' . strlen($out));
+  header('Connection: close');
+  echo $out;
+  while (ob_get_level() > 0) ob_end_flush();
+  flush();
+  if (function_exists('fastcgi_finish_request')) fastcgi_finish_request();
+  elseif (function_exists('litespeed_finish_request')) litespeed_finish_request();
+  $answered = true;
+}
+
+/* 2. CRM (Uspacy lead processor) */
+$crm_url = $cfg['crm_url'] ?? 'https://rubicon.tips/uspacy/customers/pro_part_real_estate/leads_processor/leads_processor.php';
+$res['crm'] = post_json($crm_url, array_merge([
+  'title'      => '[Webinar] Отельная недвижимость без посредников: ' . $name,
+  'first_name' => $name,
+  'phone'      => $phone,
+  'email'      => $email,
+  'source'     => 'reklama_target',
+], $utm));
 
 /* 3. Telegram */
 if (!empty($cfg['tg_token']) && !empty($cfg['tg_chat_id'])) {
@@ -91,7 +108,6 @@ if (!empty($cfg['sheet_url'])) {
 /* local backup of every lead, so nothing is lost if a service is down (folder is closed to the web) */
 $dir = __DIR__ . '/leads-data';
 if (!is_dir($dir)) { @mkdir($dir, 0750); @file_put_contents("$dir/.htaccess", "Require all denied\nDeny from all\n"); }
-$ok = function ($r) { return $r && $r['code'] >= 200 && $r['code'] < 300; };
 @file_put_contents("$dir/leads.csv", implode(';', array_map(function ($x) { return '"' . str_replace('"', '""', $x) . '"'; }, [
   $when, $name, '+' . $phone, $email, $country, $utm['utm_source'], $utm['utm_medium'], $utm['utm_campaign'], $utm['utm_content'], $utm['utm_term'],
   'crm:' . ($res['crm']['code'] ?? 0), 'bordee:' . ($res['bordee']['code'] ?? '-'), 'tg:' . ($res['tg']['code'] ?? '-'), 'sheet:' . ($res['sheet']['code'] ?? '-'),
@@ -100,6 +116,7 @@ $ok = function ($r) { return $r && $r['code'] >= 200 && $r['code'] < 300; };
 /* service answers, for troubleshooting (same closed folder) */
 @file_put_contents("$dir/log.txt", $when . ' ' . json_encode($res, JSON_UNESCAPED_UNICODE) . "\n", FILE_APPEND | LOCK_EX);
 
+if ($answered) exit;
 /* the visitor sees success when at least one destination took the lead */
 $any = $ok($res['crm']) || (isset($res['bordee']) && $ok($res['bordee'])) || (isset($res['tg']) && $ok($res['tg'])) || (isset($res['sheet']) && $ok($res['sheet']));
 if (!$any) { http_response_code(502); echo '{"ok":false,"error":"upstream"}'; exit; }

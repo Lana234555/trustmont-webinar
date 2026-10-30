@@ -983,13 +983,14 @@ if(window.LITE)document.documentElement.classList.add("lite");
     var btn0=document.getElementById('rt-btn');
     if(form.classList.contains('is-sending')) return;
     form.classList.add('is-sending'); btn0.disabled=true; var label0=btn0.innerHTML; btn0.textContent='Отправляем…';
-    /* the Telegram tab is opened right on the click (browsers block it later), then sent to the bot once the lead is saved; this page keeps the «место забронировано» screen */
-    var tw=null; try{tw=window.open('','_blank'); if(tw){tw.opener=null; tw.document.title='Telegram'; tw.document.body.style.cssText='margin:0;display:grid;place-items:center;height:100vh;background:#171D3E;color:#F4EFE7;font:16px system-ui,sans-serif'; tw.document.body.textContent='Открываем Telegram…';}}catch(x){tw=null;}
     sendLead({first_name:n,email:em,phone:window.tmPhone?window.tmPhone.digits():p.replace(/\D/g,''),country:window.tmPhone?window.tmPhone.country():''}).then(function(j){
       form.classList.remove('is-sending'); showDone(j&&j.chat_url);
-      var go=document.getElementById('rt-tg').href; if(tw&&!tw.closed){try{tw.location.href=go;}catch(x){}}
+      var go=document.getElementById('rt-tg').href;
+      try{sessionStorage.setItem('tm_done',JSON.stringify({n:n,chat:go}));}catch(x){}
+      /* straight into the bot: a new tab while the browser still allows it; otherwise this tab goes, and coming back shows the success screen again */
+      var w=null; try{w=window.open(go,'_blank');}catch(x){}
+      if(w){try{w.opener=null;}catch(x){}} else location.href=go;
     },function(){
-      if(tw&&!tw.closed) try{tw.close();}catch(x){}
       form.classList.remove('is-sending'); btn0.disabled=false; btn0.innerHTML=label0;
       err.textContent='Не удалось отправить заявку. Проверьте интернет и попробуйте ещё раз.'; err.hidden=false;
     });
@@ -1004,6 +1005,8 @@ if(window.LITE)document.documentElement.classList.add("lite");
     btn.replaceWith(tg);
     form.classList.add('is-done');
   }
+  /* back from Telegram (or a reload in the same visit): keep the «место забронировано» screen */
+  try{var dn=JSON.parse(sessionStorage.getItem('tm_done')||'null'); if(dn&&dn.n){document.getElementById('f-name').value=dn.n; showDone(dn.chat);}}catch(x){}
   /* UTM marks: taken from the landing URL, kept for the visit */
   var UTM=['utm_source','utm_medium','utm_campaign','utm_content','utm_term','fbclid','gclid','ttclid'],utm={};
   try{var q=new URLSearchParams(location.search),st=JSON.parse(sessionStorage.getItem('tm_utm')||'{}');
