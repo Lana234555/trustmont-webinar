@@ -840,6 +840,7 @@ body{overflow-x:clip}
                   </div>
                   <p class="ph-note" id="ph-note"></p>
                 </div>
+                <input id="f-web" name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
                 <p class="err" id="f-err" hidden></p>
               </div>
               <div class="rt-done" id="done" hidden>
@@ -950,11 +951,37 @@ if(window.LITE)document.documentElement.classList.add("lite");
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em))return bad('f-email','Укажите корректный email.');
     if(p.replace(/\D/g,'').length<6)return bad('f-phone','Укажите номер телефона.');
     err.hidden=true;
+    var btn0=document.getElementById('rt-btn');
+    if(form.classList.contains('is-sending')) return;
+    form.classList.add('is-sending'); btn0.disabled=true; var label0=btn0.innerHTML; btn0.textContent='Отправляем…';
+    sendLead({first_name:n,email:em,phone:window.tmPhone?window.tmPhone.digits():p.replace(/\D/g,''),country:window.tmPhone?window.tmPhone.country():''}).then(function(){
+      form.classList.remove('is-sending'); showDone();
+    },function(){
+      form.classList.remove('is-sending'); btn0.disabled=false; btn0.innerHTML=label0;
+      err.textContent='Не удалось отправить заявку. Проверьте интернет и попробуйте ещё раз.'; err.hidden=false;
+    });
+  });
+  function showDone(){
+    var n=document.getElementById('f-name').value.trim();
     document.getElementById('rt-name').textContent=n;
     document.getElementById('rt-fields').hidden=true;document.getElementById('done').hidden=false;
     var btn=document.getElementById('rt-btn');btn.disabled=true;btn.innerHTML='Место забронировано';
     form.classList.add('is-done');
-  });
+  }
+  /* UTM marks: taken from the landing URL, kept for the visit */
+  var UTM=['utm_source','utm_medium','utm_campaign','utm_content','utm_term'],utm={};
+  try{var q=new URLSearchParams(location.search),st=JSON.parse(sessionStorage.getItem('tm_utm')||'{}');
+    UTM.forEach(function(k){utm[k]=q.get(k)||st[k]||'';}); sessionStorage.setItem('tm_utm',JSON.stringify(utm));}
+  catch(e){UTM.forEach(function(k){utm[k]=utm[k]||'';});}
+  /* the lead goes to lead.php next to this page (same server), which forwards it to the CRM, Telegram and the Google Sheet */
+  function sendLead(d){
+    if(/github\.io$|localhost|127\.0\.0\.1|claude/.test(location.hostname)||location.protocol==='file:') return new Promise(function(r){setTimeout(r,500);}); /* test copies: no real leads */
+    UTM.forEach(function(k){d[k]=utm[k]||'';}); d.page=location.href.split('#')[0]; d.website=(document.getElementById('f-web')||{}).value||'';
+    var ctl=window.AbortController?new AbortController():null, t=setTimeout(function(){ctl&&ctl.abort();},15000);
+    var base=location.pathname; base=/\/$/.test(base)?base:(/\.[a-z0-9]+$/i.test(base)?base.replace(/[^\/]*$/,''):base+'/');
+    return fetch(base+'lead.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d),signal:ctl?ctl.signal:undefined})
+      .then(function(r){clearTimeout(t);return r.json().catch(function(){return {};}).then(function(j){if(!r.ok||!j.ok)throw new Error('lead');return j;});});
+  }
 })();
 </script>
 <script>
@@ -1069,7 +1096,9 @@ if(window.LITE)document.documentElement.classList.add("lite");
     inp.value=v.slice(m[1].length+String(best[2]).length).replace(/^[\s\-()]+/,'');
   });
   set(detect(),'auto');
-  window.tmPhone={full:function(){return '+'+cur[2]+' '+inp.value.trim();},country:function(){return cur[0];}};
+  window.tmPhone={full:function(){return '+'+cur[2]+' '+inp.value.trim();},country:function(){return cur[0];},
+    /* digits only, international, no plus: 380501234567 (a national trunk 0 is dropped, except Italy) */
+    digits:function(){var d=inp.value.replace(/\D/g,''),cc=String(cur[2]);if(d.indexOf(cc)===0&&d.length>cc.length+6)return d;if(cur[0]!=='IT')d=d.replace(/^0+/,'');return cc+d;}};
 })();
 </script>
 <script>
