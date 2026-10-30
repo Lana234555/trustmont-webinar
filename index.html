@@ -605,6 +605,7 @@ body{overflow-x:clip}
   #register.anim.in .reg-tk-wrap{animation-name:tkInFlat}
 }
 @keyframes tkInFlat{from{opacity:0;transform:translateY(40px) scale(.96)}to{opacity:1;transform:none}}
+/* v33 */ .rt-tg{width:100%;justify-content:center;text-decoration:none}
 </style>
 </head>
 <body>
@@ -855,7 +856,7 @@ body{overflow-x:clip}
               <div class="rt-done" id="done" hidden>
                 <span class="rt-lbl">Билет на имя</span>
                 <p class="rt-name" id="rt-name"></p>
-                <p class="rt-msg">Место забронировано. Ссылку на трансляцию пришлём накануне вебинара. Напоминание в Telegram: <a href="https://t.me/trustmont_capital_bot" target="_blank" rel="noopener">Trustmont Capital</a>.</p>
+                <p class="rt-msg">Место забронировано. Ссылку на трансляцию и напоминание пришлём в Telegram — откройте бот Trustmont Capital и нажмите «Старт».</p>
               </div>
             </div>
             <div class="tk-stub rt-stub">
@@ -974,7 +975,10 @@ if(window.LITE)document.documentElement.classList.add("lite");
     var n=document.getElementById('f-name').value.trim();
     document.getElementById('rt-name').textContent=n;
     document.getElementById('rt-fields').hidden=true;document.getElementById('done').hidden=false;
-    var btn=document.getElementById('rt-btn');btn.disabled=true;btn.innerHTML='Место забронировано';
+    var btn=document.getElementById('rt-btn'),tg=document.createElement('a');
+    tg.className='btn rt-tg';tg.id='rt-tg';tg.href='https://t.me/trustmont_capital_bot';tg.target='_blank';tg.rel='noopener';
+    tg.innerHTML='Перейти в Telegram-бот <svg aria-hidden="true"><use href="#i-arrow"/></svg>';
+    btn.replaceWith(tg);
     form.classList.add('is-done');
   }
   /* UTM marks: taken from the landing URL, kept for the visit */
