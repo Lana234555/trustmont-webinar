@@ -856,7 +856,7 @@ body{overflow-x:clip}
               <div class="rt-done" id="done" hidden>
                 <span class="rt-lbl">Билет на имя</span>
                 <p class="rt-name" id="rt-name"></p>
-                <p class="rt-msg">Место забронировано. Ссылку на трансляцию и напоминание пришлём в Telegram — откройте бот Trustmont Capital и нажмите «Старт».</p>
+                <p class="rt-msg">Место забронировано. Ссылку на трансляцию и напоминание пришлём в Telegram — откройте Trustmont Capital и нажмите «Старт».</p>
               </div>
             </div>
             <div class="tk-stub rt-stub">
@@ -977,7 +977,7 @@ if(window.LITE)document.documentElement.classList.add("lite");
     document.getElementById('rt-fields').hidden=true;document.getElementById('done').hidden=false;
     var btn=document.getElementById('rt-btn'),tg=document.createElement('a');
     tg.className='btn rt-tg';tg.id='rt-tg';tg.href='https://t.me/trustmont_capital_bot';tg.target='_blank';tg.rel='noopener';
-    tg.innerHTML='Перейти в Telegram-бот <svg aria-hidden="true"><use href="#i-arrow"/></svg>';
+    tg.innerHTML='Перейти в Telegram <svg aria-hidden="true"><use href="#i-arrow"/></svg>';
     btn.replaceWith(tg);
     form.classList.add('is-done');
   }
