@@ -606,6 +606,15 @@ body{overflow-x:clip}
 }
 @keyframes tkInFlat{from{opacity:0;transform:translateY(40px) scale(.96)}to{opacity:1;transform:none}}
 /* v33 */ .rt-tg{width:100%;justify-content:center;text-decoration:none}
+
+/* v34: «Почему это важно» / «Почему стоит присоединиться» scroll normally; a thin line with a soft gliding light hints there is more below */
+.why-pin.static .why-stage{padding-block:clamp(72px,calc(var(--sv1,1vh)*12),140px)}
+.why-pin.static .why-frames{gap:clamp(28px,5vw,48px);max-width:880px}
+.why-pin.static .wf{gap:22px}
+.scroll-cue{justify-self:center;width:1px;height:64px;position:relative;overflow:hidden;background:linear-gradient(to bottom,transparent,rgba(220,167,123,.35),transparent)}
+.scroll-cue span{position:absolute;left:-1px;width:3px;height:22px;border-radius:2px;background:linear-gradient(to bottom,transparent,var(--copper),transparent);animation:cueGlide 2.4s cubic-bezier(.45,0,.25,1) infinite}
+@keyframes cueGlide{from{top:-24px;opacity:0}25%{opacity:1}to{top:64px;opacity:0}}
+@media (prefers-reduced-motion:reduce){.scroll-cue span{animation:none;top:20px}}
 </style>
 </head>
 <body>
@@ -680,7 +689,7 @@ body{overflow-x:clip}
   </section>
 
   <!-- 02 WHY IT MATTERS: pinned screen, three frames swap on scroll -->
-  <section class="why-pin" id="why" aria-labelledby="h-why">
+  <section class="why-pin static" id="why" aria-labelledby="h-why">
     <div class="why-stage">
       <p class="eyebrow dash why-eye">Почему это важно</p>
       <div class="why-frames">
@@ -691,9 +700,11 @@ body{overflow-x:clip}
             <p class="fg">Но насколько глубоко международная гостиничная сеть вовлечена в проект?</p>
           </div>
         </div>
+        <div class="scroll-cue" aria-hidden="true"><span></span></div>
         <div class="wf" data-i="1">
           <p class="quote">Кто выбирает девелопера? Кто контролирует строительство? Кто отвечает за операционную деятельность? И что происходит, если отель перестаёт соответствовать стандартам бренда?</p>
         </div>
+        <div class="scroll-cue" aria-hidden="true"><span></span></div>
         <div class="wf" data-i="2">
           <p class="lead-big">Мы решили задать эти вопросы непосредственно Wyndham Hotels &amp; Resorts — одной из крупнейших гостиничных франчайзинговых компаний мира.</p>
           <p class="fg-copper">Без интерпретаций со стороны продавцов недвижимости. Только прямые ответы представителя международной гостиничной сети.</p>
@@ -798,16 +809,18 @@ body{overflow-x:clip}
   </div><!-- /stack -->
 
   <!-- 06a WHY JOIN: pinned, three texts swap on scroll -->
-  <section class="why-pin" id="why-join" aria-labelledby="h-join">
+  <section class="why-pin static" id="why-join" aria-labelledby="h-join">
     <div class="why-stage">
       <div class="why-frames">
         <div class="wf" data-i="0">
           <h2 id="h-join">Почему стоит присоединиться?</h2>
           <p class="lead-big">Вы получите возможность услышать позицию <em class="hl">непосредственно международной гостиничной сети.</em></p>
         </div>
+        <div class="scroll-cue" aria-hidden="true"><span></span></div>
         <div class="wf" data-i="1">
           <p class="quote">Узнаете, что означает присутствие известного бренда в гостиничном проекте, какие механизмы контроля существуют и на какие вопросы инвестору важно получить ответы до покупки.</p>
         </div>
+        <div class="scroll-cue" aria-hidden="true"><span></span></div>
         <div class="wf" data-i="2">
           <p class="lead-big">А на примере <em class="hl">реального проекта в Бухаресте</em> увидите, как взаимодействуют девелопер и международная гостиничная сеть.</p>
           <a class="btn js-reg" href="#register">Зарегистрироваться бесплатно <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
@@ -1016,7 +1029,7 @@ if(window.LITE)document.documentElement.classList.add("lite");
   var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   [].forEach.call(document.querySelectorAll('.why-pin'),function(sec){
     var frames=[].slice.call(sec.querySelectorAll('.wf'));
-    if(reduce){ sec.classList.add('static'); return; }
+    if(reduce||sec.classList.contains('static')){ sec.classList.add('static'); return; }
     var n=frames.length, ticking=false;
     function clamp(v){return v<0?0:v>1?1:v;}
     function render(){
