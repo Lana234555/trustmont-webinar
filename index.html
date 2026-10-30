@@ -551,9 +551,9 @@ body{overflow-x:clip}
 #register .reg-ticket .tk-main > *{position:relative;z-index:1}
 @media (prefers-reduced-motion:reduce){.tk-float-r{transform:none!important;animation:none!important}#register .reg-ticket .tk-main::before{display:none}}
 
-/* v26: speakers on phones — small square photo beside name/role, description full width below; scales 320–767px */
-@media (max-width:767px){
-  .spk-grid{gap:14px}
+/* v26: speakers on phones — small square photo beside name/role, description full width below; scales 320–767px (v35: tablets too, up to 1023px) */
+@media (max-width:1023px){
+  .spk-grid{gap:14px;grid-template-columns:1fr}
   .sp{--ph:clamp(76px,22vw,128px);display:grid;grid-template-columns:var(--ph) minmax(0,1fr);grid-template-rows:auto auto auto 1fr;column-gap:clamp(12px,3.5vw,20px);row-gap:0;align-items:start;padding:clamp(14px,4vw,22px)}
   .sp:hover{transform:none}
   .sp-photo{grid-column:1;grid-row:1/4;width:var(--ph);aspect-ratio:1/1;border-radius:14px;align-self:start;min-height:0;height:auto}
@@ -615,6 +615,14 @@ body{overflow-x:clip}
 .scroll-cue span{position:absolute;left:-1px;width:3px;height:22px;border-radius:2px;background:linear-gradient(to bottom,transparent,var(--copper),transparent);animation:cueGlide 2.4s cubic-bezier(.45,0,.25,1) infinite}
 @keyframes cueGlide{from{top:-24px;opacity:0}25%{opacity:1}to{top:64px;opacity:0}}
 @media (prefers-reduced-motion:reduce){.scroll-cue span{animation:none;top:20px}}
+/* v35: tablet speaker cards — one column, a bit roomier */
+@media (min-width:768px) and (max-width:1023px){
+  .spk-grid{gap:18px;max-width:760px;margin-inline:auto}
+  .sp{--ph:150px;column-gap:24px;padding:26px}
+  .sp h3{font-size:28px}
+  .sp .role{font-size:15px}
+  .sp .desc{font-size:16px}
+}
 </style>
 </head>
 <body>
