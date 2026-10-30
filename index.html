@@ -813,6 +813,7 @@ body{overflow-x:clip}
               <p class="tk-title" id="rt-title">14 ноября 2026 · 11:00 <small>по Киеву</small></p>
               <div class="rt-fields" id="rt-fields">
                 <label class="rt-field" for="f-name"><span>Имя</span><input id="f-name" name="name" type="text" autocomplete="name" placeholder="Ваше имя" required></label>
+                <label class="rt-field" for="f-email"><span>Email</span><input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" required></label>
                 <div class="rt-field ph">
                   <label for="f-phone" id="ph-lbl">Телефон</label>
                   <div class="ph-row">
@@ -928,10 +929,11 @@ if(window.LITE)document.documentElement.classList.add("lite");
   form.addEventListener('submit',function(e){
     e.preventDefault();
     if(form.classList.contains('is-done')) return;
-    ['f-name','f-phone'].forEach(function(id){document.getElementById(id).removeAttribute('aria-invalid');});
-    var n=document.getElementById('f-name').value.trim(),p=document.getElementById('f-phone').value.trim();
+    ['f-name','f-email','f-phone'].forEach(function(id){document.getElementById(id).removeAttribute('aria-invalid');});
+    var n=document.getElementById('f-name').value.trim(),em=document.getElementById('f-email').value.trim(),p=document.getElementById('f-phone').value.trim();
     form.dataset.fullPhone=window.tmPhone?window.tmPhone.full():p;
     if(n.length<2)return bad('f-name','Укажите имя.');
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em))return bad('f-email','Укажите корректный email.');
     if(p.replace(/\D/g,'').length<6)return bad('f-phone','Укажите номер телефона.');
     err.hidden=true;
     document.getElementById('rt-name').textContent=n;
