@@ -1,6 +1,6 @@
 <?php
 /* Trustmont × Wyndham webinar: receives a registration from the page and forwards it
-   to the Uspacy CRM, a Telegram chat and a Google Sheet. Secrets live in lead-config.php. */
+   to the Uspacy CRM, the bord.ee Telegram chat-bot, a Telegram chat and a Google Sheet. Secrets live in lead-config.php. */
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); echo '{"ok":false}'; exit; }
@@ -24,6 +24,8 @@ if (mb_strlen($name) < 2 || !filter_var($email, FILTER_VALIDATE_EMAIL) || strlen
 }
 $utm = [];
 foreach (['utm_source','utm_medium','utm_campaign','utm_content','utm_term'] as $k) $utm[$k] = v($in, $k);
+$ads = [];   // ad click ids and Meta pixel cookies, for the bord.ee bot
+foreach (['fbclid','gclid','ttclid','fbp','fbc'] as $k) if (v($in, $k, 500) !== '') $ads[$k] = v($in, $k, 500);
 $country = v($in, 'country', 4);
 $page    = v($in, 'page', 300);
 $when    = (new DateTime('now', new DateTimeZone('Europe/Kyiv')))->format('Y-m-d H:i:s');
@@ -57,7 +59,18 @@ $res['crm'] = post_json($crm_url, array_merge([
   'source'     => 'reklama_target',
 ], $utm));
 
-/* 2. Telegram */
+/* 2. bord.ee chat-bot: makes the contact and answers with a personal link into the bot (chat_url) */
+$chat_url = '';
+$bordee_url = $cfg['bordee_url'] ?? 'https://bord.ee/hooks/trustmont-capital/sites/vebinar-wyndham-14112026-telegram-bot/lead';
+if ($bordee_url) {
+  $res['bordee'] = post_json($bordee_url, array_merge([
+    'name' => $name, 'phone' => '+' . $phone, 'email' => $email, 'country' => $country, 'page_url' => $page,
+  ], $utm, $ads));
+  $j = json_decode($res['bordee']['body'], true);
+  if (is_array($j) && !empty($j['chat_url']) && preg_match('~^https://t\.me/[A-Za-z0-9_]+(\?start=[A-Za-z0-9_-]+)?$~', $j['chat_url'])) $chat_url = $j['chat_url'];
+}
+
+/* 3. Telegram */
 if (!empty($cfg['tg_token']) && !empty($cfg['tg_chat_id'])) {
   $lines = ["🎟 Новая регистрация на вебинар 14.11", "", "Имя: $name", "Телефон: +$phone", "Email: $email"];
   if ($country) $lines[] = "Страна: $country";
@@ -67,7 +80,7 @@ if (!empty($cfg['tg_token']) && !empty($cfg['tg_chat_id'])) {
     ['chat_id' => $cfg['tg_chat_id'], 'text' => implode("\n", $lines), 'disable_web_page_preview' => true]);
 }
 
-/* 3. Google Sheet (Apps Script web app that appends a row) */
+/* 4. Google Sheet (Apps Script web app that appends a row) */
 if (!empty($cfg['sheet_url'])) {
   $res['sheet'] = post_json($cfg['sheet_url'], array_merge([
     'secret' => $cfg['sheet_secret'] ?? '', 'date' => $when, 'first_name' => $name, 'phone' => '+' . $phone,
@@ -81,13 +94,13 @@ if (!is_dir($dir)) { @mkdir($dir, 0750); @file_put_contents("$dir/.htaccess", "R
 $ok = function ($r) { return $r && $r['code'] >= 200 && $r['code'] < 300; };
 @file_put_contents("$dir/leads.csv", implode(';', array_map(function ($x) { return '"' . str_replace('"', '""', $x) . '"'; }, [
   $when, $name, '+' . $phone, $email, $country, $utm['utm_source'], $utm['utm_medium'], $utm['utm_campaign'], $utm['utm_content'], $utm['utm_term'],
-  'crm:' . ($res['crm']['code'] ?? 0), 'tg:' . ($res['tg']['code'] ?? '-'), 'sheet:' . ($res['sheet']['code'] ?? '-'),
+  'crm:' . ($res['crm']['code'] ?? 0), 'bordee:' . ($res['bordee']['code'] ?? '-'), 'tg:' . ($res['tg']['code'] ?? '-'), 'sheet:' . ($res['sheet']['code'] ?? '-'),
 ])) . "\n", FILE_APPEND | LOCK_EX);
 
 /* service answers, for troubleshooting (same closed folder) */
 @file_put_contents("$dir/log.txt", $when . ' ' . json_encode($res, JSON_UNESCAPED_UNICODE) . "\n", FILE_APPEND | LOCK_EX);
 
 /* the visitor sees success when at least one destination took the lead */
-$any = $ok($res['crm']) || (isset($res['tg']) && $ok($res['tg'])) || (isset($res['sheet']) && $ok($res['sheet']));
+$any = $ok($res['crm']) || (isset($res['bordee']) && $ok($res['bordee'])) || (isset($res['tg']) && $ok($res['tg'])) || (isset($res['sheet']) && $ok($res['sheet']));
 if (!$any) { http_response_code(502); echo '{"ok":false,"error":"upstream"}'; exit; }
-echo '{"ok":true}';
+echo json_encode(['ok' => true, 'chat_url' => $chat_url]);

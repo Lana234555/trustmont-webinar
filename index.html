@@ -981,32 +981,34 @@ if(window.LITE)document.documentElement.classList.add("lite");
     var btn0=document.getElementById('rt-btn');
     if(form.classList.contains('is-sending')) return;
     form.classList.add('is-sending'); btn0.disabled=true; var label0=btn0.innerHTML; btn0.textContent='Отправляем…';
-    sendLead({first_name:n,email:em,phone:window.tmPhone?window.tmPhone.digits():p.replace(/\D/g,''),country:window.tmPhone?window.tmPhone.country():''}).then(function(){
-      form.classList.remove('is-sending'); showDone();
+    sendLead({first_name:n,email:em,phone:window.tmPhone?window.tmPhone.digits():p.replace(/\D/g,''),country:window.tmPhone?window.tmPhone.country():''}).then(function(j){
+      form.classList.remove('is-sending'); showDone(j&&j.chat_url);
     },function(){
       form.classList.remove('is-sending'); btn0.disabled=false; btn0.innerHTML=label0;
       err.textContent='Не удалось отправить заявку. Проверьте интернет и попробуйте ещё раз.'; err.hidden=false;
     });
   });
-  function showDone(){
+  function showDone(chat){
     var n=document.getElementById('f-name').value.trim();
     document.getElementById('rt-name').textContent=n;
     document.getElementById('rt-fields').hidden=true;document.getElementById('done').hidden=false;
     var btn=document.getElementById('rt-btn'),tg=document.createElement('a');
-    tg.className='btn rt-tg';tg.id='rt-tg';tg.href='https://t.me/trustmont_capital_bot';tg.target='_blank';tg.rel='noopener';
+    tg.className='btn rt-tg';tg.id='rt-tg';tg.href=/^https:\/\/t\.me\/\w+(\?start=[\w-]+)?$/.test(chat||'')?chat:'https://t.me/trustmont_capital_bot';tg.target='_blank';tg.rel='noopener';
     tg.innerHTML='Перейти в Telegram <svg aria-hidden="true"><use href="#i-arrow"/></svg>';
     btn.replaceWith(tg);
     form.classList.add('is-done');
   }
   /* UTM marks: taken from the landing URL, kept for the visit */
-  var UTM=['utm_source','utm_medium','utm_campaign','utm_content','utm_term'],utm={};
+  var UTM=['utm_source','utm_medium','utm_campaign','utm_content','utm_term','fbclid','gclid','ttclid'],utm={};
   try{var q=new URLSearchParams(location.search),st=JSON.parse(sessionStorage.getItem('tm_utm')||'{}');
     UTM.forEach(function(k){utm[k]=q.get(k)||st[k]||'';}); sessionStorage.setItem('tm_utm',JSON.stringify(utm));}
   catch(e){UTM.forEach(function(k){utm[k]=utm[k]||'';});}
-  /* the lead goes to lead.php next to this page (same server), which forwards it to the CRM, Telegram and the Google Sheet */
+  /* the lead goes to lead.php next to this page (same server), which forwards it to the CRM, the bord.ee bot, Telegram and the Google Sheet;
+     its answer carries chat_url, a personal link into the bot, used by the «Перейти в Telegram» button */
   function sendLead(d){
     if(/github\.io$|localhost|127\.0\.0\.1|claude/.test(location.hostname)||location.protocol==='file:') return new Promise(function(r){setTimeout(r,500);}); /* test copies: no real leads */
     UTM.forEach(function(k){d[k]=utm[k]||'';}); d.page=location.href.split('#')[0]; d.website=(document.getElementById('f-web')||{}).value||'';
+    ['fbp','fbc'].forEach(function(k){var m=document.cookie.match(new RegExp('(?:^|; )_'+k+'=([^;]*)'));if(m)d[k]=decodeURIComponent(m[1]);}); /* Meta pixel cookies, if a pixel is on the page */
     var ctl=window.AbortController?new AbortController():null, t=setTimeout(function(){ctl&&ctl.abort();},15000);
     var base=location.pathname; base=/\/$/.test(base)?base:(/\.[a-z0-9]+$/i.test(base)?base.replace(/[^\/]*$/,''):base+'/');
     return fetch(base+'lead.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d),signal:ctl?ctl.signal:undefined})
@@ -1296,7 +1298,13 @@ if(window.LITE)document.documentElement.classList.add("lite");
   addEventListener('resize',function(){ if(innerWidth!==lw){ lw=innerWidth; fit(); } });
 })();
 </script>
-
+<script>
+/* bord.ee Telegram chat-bot script (remembers ad marks for 30 days, Meta Lead event). Real site only, test copies stay silent.
+   The form itself is not marked data-bordee-form: lead.php already sends the lead to bord.ee once, server-side. */
+(function(){if(/github\.io$|localhost|127\.0\.0\.1|claude/.test(location.hostname)||location.protocol==='file:')return;
+  if(document.querySelector('script[src*="bord.ee/hooks/"]'))return; /* already on the page: load it once */
+  var s=document.createElement('script');s.async=true;s.src='https://bord.ee/hooks/trustmont-capital/sites/vebinar-wyndham-14112026-telegram-bot.js';document.body.appendChild(s);})();
+</script>
 
 </body>
 </html>
