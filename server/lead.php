@@ -84,6 +84,9 @@ $ok = function ($r) { return $r && $r['code'] >= 200 && $r['code'] < 300; };
   'crm:' . ($res['crm']['code'] ?? 0), 'tg:' . ($res['tg']['code'] ?? '-'), 'sheet:' . ($res['sheet']['code'] ?? '-'),
 ])) . "\n", FILE_APPEND | LOCK_EX);
 
+/* service answers, for troubleshooting (same closed folder) */
+@file_put_contents("$dir/log.txt", $when . ' ' . json_encode($res, JSON_UNESCAPED_UNICODE) . "\n", FILE_APPEND | LOCK_EX);
+
 /* the visitor sees success when at least one destination took the lead */
 $any = $ok($res['crm']) || (isset($res['tg']) && $ok($res['tg'])) || (isset($res['sheet']) && $ok($res['sheet']));
 if (!$any) { http_response_code(502); echo '{"ok":false,"error":"upstream"}'; exit; }
