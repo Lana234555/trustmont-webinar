@@ -80,7 +80,7 @@ if (isset($res['bordee']) && $ok($res['bordee'])) {
 /* 2. CRM (Uspacy lead processor) */
 $crm_url = $cfg['crm_url'] ?? 'https://rubicon.tips/uspacy/customers/pro_part_real_estate/leads_processor/leads_processor.php';
 $res['crm'] = post_json($crm_url, array_merge([
-  'title'      => '[Webinar] Отельная недвижимость без посредников: ' . $name,
+  'title'      => '[Webinar] Отельная недвижимость: ' . $name,
   'first_name' => $name,
   'phone'      => $phone,
   'email'      => $email,
