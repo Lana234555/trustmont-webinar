@@ -1009,8 +1009,9 @@ if(window.LITE)document.documentElement.classList.add("lite");
     btn.replaceWith(tg);
     form.classList.add('is-done');
   }
-  /* back from Telegram (or a reload in the same visit): keep the «место забронировано» screen */
-  try{var dn=JSON.parse(sessionStorage.getItem('tm_done')||'null'); if(dn&&dn.n){document.getElementById('f-name').value=dn.n; showDone(dn.chat);}}catch(x){}
+  /* only when coming back from Telegram with the Back button: keep the «место забронировано» screen; a reload or a new visit shows a fresh form */
+  try{var nav=(performance.getEntriesByType&&performance.getEntriesByType('navigation')[0]||{}).type;
+    var dn=nav==='back_forward'?JSON.parse(sessionStorage.getItem('tm_done')||'null'):null; if(nav!=='back_forward') sessionStorage.removeItem('tm_done'); if(dn&&dn.n){document.getElementById('f-name').value=dn.n; showDone(dn.chat);}}catch(x){}
   /* UTM marks: taken from the landing URL, kept for the visit */
   var UTM=['utm_source','utm_medium','utm_campaign','utm_content','utm_term','fbclid','gclid','ttclid'],utm={};
   try{var q=new URLSearchParams(location.search),st=JSON.parse(sessionStorage.getItem('tm_utm')||'{}');
