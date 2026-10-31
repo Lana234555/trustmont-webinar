@@ -625,6 +625,10 @@ body{overflow-x:clip}
 }
 /* v36: brand name picked out in copper inside body text */
 .brand-hl{color:var(--copper);font-weight:600}
+/* v37: hero subtitle — lead-in in light text, brand name in copper and kept on one line (wraps only on phones) */
+.hero2-sub{color:var(--fg)}
+.hero2-sub .sub-brand{color:var(--copper);font-weight:500}
+@media (min-width:768px){.hero2-sub .sub-brand{white-space:nowrap}}
 </style>
 </head>
 <body>
@@ -663,7 +667,7 @@ body{overflow-x:clip}
       <div class="hero2-copy">
         <p class="hero2-tag"><span class="dot" aria-hidden="true"></span>Онлайн-вебинар · 14 ноября 2026 · 11:00 по Киеву</p>
         <h1 id="h1"><span class="w"><span style="--i:0">Отельная</span></span> <span class="w"><span style="--i:1">недвижимость</span></span></h1>
-        <p class="hero2-sub">Прямой разговор с Wyndham Hotels &amp; Resorts</p>
+        <p class="hero2-sub">Прямой разговор с <span class="sub-brand">Wyndham Hotels &amp; Resorts</span></p>
         <p class="hero2-lead">Как международные гостиничные сети выбирают проекты, контролируют качество и за что на самом деле отвечают перед инвесторами?</p>
         <div class="hero2-cta">
           <a class="btn js-reg" href="#register">Зарегистрироваться на вебинар <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
