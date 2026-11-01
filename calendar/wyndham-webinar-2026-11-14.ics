@@ -1,0 +1,33 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Trustmont Capital//Webinar//RU
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:wyndham-webinar-20261114T090000Z@trustmontcapital.com
+DTSTAMP:20261101T120000Z
+DTSTART:20261114T090000Z
+DTEND:20261114T100000Z
+SUMMARY:Отельная недвижимость: прямой разго
+ вор с Wyndham Hotels & Resorts
+DESCRIPTION:Как международные гостиничные сет
+ и выбирают проекты\, контролируют качест
+ во и за что на самом деле отвечают перед 
+ инвесторами?\n\nСсылка на вебинар придёт 
+ в Telegram-бот: https://t.me/trustmont_capital_bot
+LOCATION:https://t.me/trustmont_capital_bot
+URL:https://t.me/trustmont_capital_bot
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:Напоминание: вебинар через час. Сс
+ ылка — в боте: https://t.me/trustmont_capital_bot
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:Напоминание: вебинар через 5 минут.
+  Ссылка — в боте: https://t.me/trustmont_capital_bot
+END:VALARM
+END:VEVENT
+END:VCALENDAR

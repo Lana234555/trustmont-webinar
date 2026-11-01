@@ -1,0 +1,4 @@
+AddType text/calendar .ics
+<Files "*.ics">
+  Header set Content-Disposition "inline; filename=wyndham-webinar-2026-11-14.ics"
+</Files>
