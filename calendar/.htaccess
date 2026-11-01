@@ -1,8 +1,8 @@
 AddType "text/calendar; charset=utf-8" .ics
-# browsers hand the file to the calendar app instead of showing it as text
+# with the calendar type above, phones open the event and desktop browsers hand the file to the calendar app
 <IfModule mod_headers.c>
   <FilesMatch "\.ics$">
-    Header set Content-Disposition "attachment; filename=wyndham-webinar-2026-11-14.ics"
+    Header set Content-Disposition "inline; filename=wyndham-webinar-2026-11-14.ics"
   </FilesMatch>
 </IfModule>
 # short link for the bot: /wyndham-webinar/calendar/google opens Google Calendar with the event filled in
