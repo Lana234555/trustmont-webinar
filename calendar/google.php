@@ -1,0 +1,4 @@
+<?php
+/* Opens Google Calendar with the webinar already filled in; the visitor only presses «Сохранить». */
+header('Cache-Control: no-cache, no-store, must-revalidate');
+header('Location: https://calendar.google.com/calendar/render?action=TEMPLATE&text=%D0%9E%D1%82%D0%B5%D0%BB%D1%8C%D0%BD%D0%B0%D1%8F%20%D0%BD%D0%B5%D0%B4%D0%B2%D0%B8%D0%B6%D0%B8%D0%BC%D0%BE%D1%81%D1%82%D1%8C%3A%20%D0%BF%D1%80%D1%8F%D0%BC%D0%BE%D0%B9%20%D1%80%D0%B0%D0%B7%D0%B3%D0%BE%D0%B2%D0%BE%D1%80%20%D1%81%20Wyndham%20Hotels%20%26%20Resorts&dates=20261114T090000Z/20261114T100000Z&details=%D0%A1%D1%81%D1%8B%D0%BB%D0%BA%D0%B0%20%D0%BD%D0%B0%20%D0%B2%D0%B5%D0%B1%D0%B8%D0%BD%D0%B0%D1%80%20%D0%BF%D1%80%D0%B8%D0%B4%D1%91%D1%82%20%D0%B2%20Telegram-%D0%B1%D0%BE%D1%82%3A%20https%3A//t.me/trustmont_capital_bot&ctz=Europe/Kyiv', true, 302);
